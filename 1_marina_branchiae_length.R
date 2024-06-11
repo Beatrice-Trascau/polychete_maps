@@ -50,7 +50,7 @@ branchia_plot2 <- ggdotchart(branchia, x = "Nummer", y = "Length",
            shape = "speices_branchiae",
            sorting = "ascending",
            xlab = "Individual",
-           ylab = "Lebgth (mm)",
+           ylab = "Length (mm)",
            ggtheme = theme_pubr()) + guides(shape = "none")  
 
 ggsave(here("figures", "branchia_plot2.png"),
