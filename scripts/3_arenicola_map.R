@@ -78,7 +78,7 @@ norway_sf <- st_as_sf(norway)
 # Check column names
 colnames(arenicola_clean)
 
-# Convert to spatial datafram for plotting
+# Convert to spatial dataframe for plotting
 arenicola_sf <- st_as_sf(arenicola_clean,
                          coords = c("longitude","latitude"),
                          crs = crs(norway_sf))
