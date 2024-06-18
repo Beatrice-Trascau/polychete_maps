@@ -15,6 +15,7 @@ library(ggpubr)
 library(plotly)
 library(scales)
 library(ggspatial)
+library(cowplot)
 
 # 1. LOAD DATA -----------------------------------------------------------------
 
@@ -85,12 +86,23 @@ arenicola_sf <- st_as_sf(arenicola_clean,
 
 ## 3.1. Plot two separate maps -------------------------------------------------
 
+# Extract depth minimum and maximums
+depth_min <- min(arenicola_clean$depth_m, na.rm = TRUE) #0
+depth_max <- max(arenicola_clean$depth_m, na.rm = TRUE) #387
+
+# Define additional breaks for legend
+additional_breaks <- c(100, 200, 300)
+
+# Combine min, max, and additional breaks
+breaks <- sort(c(depth_min, depth_max, additional_breaks))
+
 # Plot map for A. marina
-arenicola_marina <- arenicola_sf |>
-  filter(x_species == "Arenicola marina") |>
-  ggplot() +
+a_marina_df <- arenicola_sf |>
+  filter(x_species == "Arenicola marina")
+
+arenicola_marina <- ggplot() +
   geom_sf(data = norway_sf, fill = "lightgray", color = "white") +
-  geom_sf(data = arenicola_sf, aes(color = depth_m)) +
+  geom_sf(data = a_marina_df, aes(color = depth_m)) +
   annotation_north_arrow(location = "br", which_north = "true",
                          pad_y = unit(0.8, "cm"),
                          style = north_arrow_fancy_orienteering) +
@@ -105,34 +117,31 @@ arenicola_marina <- arenicola_sf |>
         plot.title = element_text(face = "italic"))
 
 # Plot map for A. ecaudata
-arenicolides_ecaudata <- arenicola_sf |>
-  filter(x_species == "Arenicolides ecaudata") |>
-  ggplot() +
+a_ecaudata_df <- arenicola_sf |>
+  filter(x_species == "Arenicolides ecaudata")
+
+arenicolides_ecaudata <- ggplot() +
   geom_sf(data = norway_sf, fill = "lightgray", color = "white") +
-  geom_sf(data = arenicola_sf, aes(color = depth_m)) +
-  scale_color_gradient(low = "blue", high = "red") +
+  geom_sf(data = a_ecaudata_df, aes(color = depth_m)) +
+  scale_color_gradient(low = "blue", high = "red",
+                       limits = c(depth_min, depth_max),
+                       breaks = breaks,
+                       labels = breaks) +
   theme_classic() +
   labs(color = "Depth (m)",
        title = "Arenicolides ecaudata") +
   theme(panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
-        legend.position = "none",
+        legend.position = c(0.8, 0.12),
         plot.title = element_text(face = "italic"),
         axis.title.y = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
-        axis.line.y = element_blank())
-
-# Extract legend from one of the plots
-legend <- get_legend(arenicola_marina + theme(legend.position = "bottom"))
+        axis.line.y = element_blank()) 
 
 # Arrange the two plots in a single figure
 arenicola_map1 <- plot_grid(arenicola_marina, arenicolides_ecaudata,
                             ncol = 2, align = "hv", rel_heights = c(1, 1))
-
-# Add legend to bottom centre
-arenicola_final_plot <- plot_grid(arenicola_map1, legend, ncol = 1, 
-                        rel_heights = c(1, 0.1))
 
 # Save to file
 ggsave(here("figures", "arenicola_map1.png"),
