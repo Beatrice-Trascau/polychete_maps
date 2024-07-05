@@ -84,7 +84,21 @@ arenicola_sf <- st_as_sf(arenicola_clean,
                          crs = crs(norway_sf))
 # 3. PLOT ----------------------------------------------------------------------  
 
-## 3.1. Plot two separate maps -------------------------------------------------
+## 3.1. Create two separate dfs for each species -------------------------------
+
+# A. marina
+a_marina_df <- arenicola_sf |>
+  filter(x_species == "Arenicola marina")
+
+# A. ecaudata
+a_ecaudata_df <- arenicola_sf |>
+  filter(x_species == "Arenicolides ecaudata")
+
+## 3.2. Create custom legend ---------------------------------------------------
+
+# Creat depth range from both dfs
+combined_depth_range <- range(c(a_marina_df$depth_m, 
+                                a_ecaudata_df$depth_m), na.rm = TRUE)
 
 # Extract depth minimum and maximums
 depth_min <- min(arenicola_clean$depth_m, na.rm = TRUE) #0
@@ -96,10 +110,16 @@ additional_breaks <- c(100, 200, 300)
 # Combine min, max, and additional breaks
 breaks <- sort(c(depth_min, depth_max, additional_breaks))
 
-# Plot map for A. marina
-a_marina_df <- arenicola_sf |>
-  filter(x_species == "Arenicola marina")
+# Define custom colour scale
+color_scale <- scale_color_gradient(low = "blue", high = "red",
+                                    limits = c(depth_min, depth_max),
+                                    breaks = breaks,
+                                    labels = breaks,
+                                    guide = guide_colorbar(reverse = TRUE))
 
+## 3.3. Plot two separate maps -------------------------------------------------
+
+# Plot map for A. marina
 arenicola_marina <- ggplot() +
   geom_sf(data = norway_sf, fill = "lightgray", color = "white") +
   geom_sf(data = a_marina_df, aes(color = depth_m)) +
@@ -107,7 +127,7 @@ arenicola_marina <- ggplot() +
                          pad_y = unit(0.8, "cm"),
                          style = north_arrow_fancy_orienteering) +
   annotation_scale(location = "br", width_hint = 0.35) +
-  scale_color_gradient(low = "blue", high = "red") +
+  color_scale +
   theme_classic() +
   labs(color = "Depth (m)",
        title = "Arenicola marina") +
@@ -117,16 +137,10 @@ arenicola_marina <- ggplot() +
         plot.title = element_text(face = "italic"))
 
 # Plot map for A. ecaudata
-a_ecaudata_df <- arenicola_sf |>
-  filter(x_species == "Arenicolides ecaudata")
-
 arenicolides_ecaudata <- ggplot() +
   geom_sf(data = norway_sf, fill = "lightgray", color = "white") +
   geom_sf(data = a_ecaudata_df, aes(color = depth_m)) +
-  scale_color_gradient(low = "blue", high = "red",
-                       limits = c(depth_min, depth_max),
-                       breaks = breaks,
-                       labels = breaks) +
+  color_scale +
   theme_classic() +
   labs(color = "Depth (m)",
        title = "Arenicolides ecaudata") +
@@ -147,7 +161,7 @@ arenicola_map1 <- plot_grid(arenicola_marina, arenicolides_ecaudata,
 ggsave(here("figures", "arenicola_map1.png"),
        width=13, height=9)
 
-## 3.2. Plot with facet wrap ---------------------------------------------------
+## 3.4. Plot with facet wrap ---------------------------------------------------
 # Plot map with two panels
 arenicola_map2 <- ggplot() +
   geom_sf(data = norway_sf, fill = "lightgray", color = "white") +
