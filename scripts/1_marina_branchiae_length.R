@@ -33,7 +33,8 @@ branchia <- branchia_length |>
 
 # Create plot
 branchia_plot1 <- ggplot(branchia, aes(x = Nummer, y = Length)) +
-  geom_point(aes(shape = speices_branchiae)) +
+  geom_point(aes(shape = speices_branchiae), size = 4, 
+             position = position_jitter(width = 0.2, height = 0)) +
   ylab("Length (mm)") +
   xlab("Individual") +
   theme_classic() +

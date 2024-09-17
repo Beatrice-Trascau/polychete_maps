@@ -30,7 +30,10 @@ ecaudata <- ecaudata_branchiae |>
 
 # Create plot
 ecaudata_plot1 <- ggplot(ecaudata, aes(x = X...Specimen, y = Length)) +
-  geom_point(aes(shape = Branchiae)) +
+  geom_point(aes(shape = Branchiae), size = 4, 
+             position = position_jitter(width = 0.2, height = 0)) +
+  scale_shape_manual(values = c("yes" = 16, "no" = 17)) +
+  scale_alpha_manual(values = c("yes" = 1, "no" = 0.1)) + 
   ylab("Length (mm)") +
   xlab("Individual") +
   theme_classic() +
