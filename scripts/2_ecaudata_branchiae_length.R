@@ -37,7 +37,8 @@ ecaudata_plot1 <- ggplot(ecaudata, aes(x = X...Specimen, y = Length)) +
   ylab("Length (mm)") +
   xlab("Individual") +
   theme_classic() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        text = element_text(size = 20))
 
 # Save to file
 ggsave(here("figures", "ecaudata_plot1.png"),

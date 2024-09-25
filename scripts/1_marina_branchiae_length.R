@@ -38,7 +38,8 @@ branchia_plot1 <- ggplot(branchia, aes(x = Nummer, y = Length)) +
   ylab("Length (mm)") +
   xlab("Individual") +
   theme_classic() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        text = element_text(size = 20))
 
 # Save to file
 ggsave(here("figures", "branchia_plot1.png"),
